@@ -1,0 +1,3 @@
+depthai
+opencv-contrib-python
+blobconverter
