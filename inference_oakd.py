@@ -38,7 +38,7 @@ pipeline = dai.Pipeline()
 camRgb = pipeline.create(dai.node.ColorCamera)
 
 yolo_spatial_det_nn = pipeline.createYoloSpatialDetectionNetwork()
-yolo_spatial_det_nn.setConfidenceThreshold(0.05)
+yolo_spatial_det_nn.setConfidenceThreshold(0.5)
 yolo_spatial_det_nn.setBlobPath(nnBlobPath)
 yolo_spatial_det_nn.setNumClasses(9)  # Adjust based on your model
 yolo_spatial_det_nn.setCoordinateSize(4)
@@ -46,7 +46,7 @@ yolo_spatial_det_nn.setAnchors(
     [10, 14, 23, 27, 37, 58, 81, 82, 135, 169, 344, 319])  # Adjust based on your model
 yolo_spatial_det_nn.setAnchorMasks(
     {"side26": [1, 2, 3], "side13": [3, 4, 5]})  # Adjust based on your model
-yolo_spatial_det_nn.setIouThreshold(0.05)
+yolo_spatial_det_nn.setIouThreshold(0.5)
 yolo_spatial_det_nn.setDepthLowerThreshold(100)
 # yolo_spatial_det_nn.setDepthUpperThreshold(5000)
 
