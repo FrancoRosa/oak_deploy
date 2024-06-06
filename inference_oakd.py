@@ -4,20 +4,31 @@ import numpy as np
 import time
 
 
+# BRG colors
 text_color = (0, 0, 255)
 bbox_color = (0, 255, 0)
 black_color = (0, 0, 0)
 white_color = (255, 255, 255)
-
-green = (0, 255, 0)
-red = (255, 0, 0)
-orange = (255, 165, 0)
+green = (0, 0, 255)
+red = (0, 255, 0)
+orange = (0, 255, 165)
 
 # nnBlobPath = "weights_blob/best_openvino_2022.1_6shave.blob"
 nnBlobPath = "best_openvino_trees_2022.1_5shave.blob"
 
 labelMap = ['crate', 'junction box', 'module',
             'panel', 'person', 'pile', 'pipe', 'pipes', 'tube']
+
+
+clicked = False
+
+# Callback function for mouse events
+
+
+def on_mouse_click(event, x, y, flags, param):
+    global clicked
+    if event == cv2.EVENT_LBUTTONDOWN:
+        clicked = True
 
 
 # Create pipeline
@@ -58,7 +69,7 @@ camRgb.video.link(xoutRgb.input)
 camRgb.setPreviewSize(640, 640)
 camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
 camRgb.setInterleaved(False)
-# camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
+camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
 camRgb.setIspScale(2, 3)
 camRgb.setPreviewKeepAspectRatio(False)
 
@@ -110,6 +121,12 @@ with dai.Device(pipeline) as device:
     counter = 0
     fps = 0
     color = (255, 255, 255)
+
+    cv2.namedWindow('ai cam', cv2.WINDOW_NORMAL)
+    cv2.setMouseCallback('ai cam', on_mouse_click)
+    screen_res = max(cv2.getWindowImageRect('ai cam'), (1920, 1080))
+    cv2.setWindowProperty(
+        'ai cam', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     while True:
 
@@ -176,11 +193,14 @@ with dai.Device(pipeline) as device:
                           black_color, 2)
             cv2.rectangle(frame, (x1, y1), (x2, y2),
                           msg_color, 2)
-        # cv2.putText(frame, "fps: {:.2f}".format(
-        #     fps), (0, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, black_color, 2)
-        # cv2.putText(frame, "fps: {:.2f}".format(
-        #     fps), (2, frame.shape[0] - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.75, white_color, 2)
-        cv2.imshow("preview", frame)
+        cv2.putText(frame, "fps: {:.2f}".format(
+            fps), (0, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, black_color, 2)
+        cv2.putText(frame, "fps: {:.2f}".format(
+            fps), (2, frame.shape[0] - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.75, white_color, 2)
+        # cv2.imshow("ai cam", frame)
+        cv2.imshow('ai cam', cv2.resize(frame, screen_res))
 
         if cv2.waitKey(1) == ord('q'):
+            break
+        if clicked:
             break
