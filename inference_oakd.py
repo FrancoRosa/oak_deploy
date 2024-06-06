@@ -6,6 +6,8 @@ import time
 
 text_color = (0, 0, 255)
 bbox_color = (0, 255, 0)
+black_color = (0, 0, 0)
+white_color = (255, 255, 255)
 # nnBlobPath = "weights_blob/best_openvino_2022.1_6shave.blob"
 nnBlobPath = "best_openvino_trees_2022.1_5shave.blob"
 
@@ -147,22 +149,20 @@ with dai.Device(pipeline) as device:
                 label = labelMap[detection.label]
             except:
                 label = detection.label
-            cv2.putText(frame, str(label), (x1 + 10, y1 + 20),
-                        cv2.FONT_HERSHEY_TRIPLEX, 0.5, text_color)
-            cv2.putText(frame, "{:.2f}".format(detection.confidence*100),
-                        (x1 + 10, y1 + 35), cv2.FONT_HERSHEY_TRIPLEX, 0.5, text_color)
-            cv2.putText(frame, f"X: {int(detection.spatialCoordinates.x)} mm", (
-                x1 + 10, y1 + 50), cv2.FONT_HERSHEY_TRIPLEX, 0.5, text_color)
-            cv2.putText(frame, f"Y: {int(detection.spatialCoordinates.y)} mm", (
-                x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, text_color)
-            cv2.putText(frame, f"Z: {int(detection.spatialCoordinates.z)} mm", (
-                x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, text_color)
+            text = f"{str(label)} {round(int(detection.spatialCoordinates.z)/304.8,1)}ft"
+            cv2.putText(frame, text, (
+                x1-1, y1 - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.65, black_color, 2)
+            cv2.putText(frame, text, (
+                x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.65, bbox_color, 2)
 
+            cv2.rectangle(frame, (x1-1, y1-1), (x2-1, y2-1),
+                          black_color, 2)
             cv2.rectangle(frame, (x1, y1), (x2, y2),
-                          bbox_color, cv2.FONT_HERSHEY_SIMPLEX)
-
-        cv2.putText(frame, "NN fps: {:.2f}".format(
-            fps), (2, frame.shape[0] - 4), cv2.FONT_HERSHEY_TRIPLEX, 0.4, (255, 255, 255))
+                          bbox_color, 2)
+        cv2.putText(frame, "fps: {:.2f}".format(
+            fps), (0, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, black_color, 2)
+        cv2.putText(frame, "fps: {:.2f}".format(
+            fps), (2, frame.shape[0] - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.75, white_color, 2)
         cv2.imshow("preview", frame)
 
         if cv2.waitKey(1) == ord('q'):
