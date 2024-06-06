@@ -21,7 +21,7 @@ pipeline = dai.Pipeline()
 camRgb = pipeline.create(dai.node.ColorCamera)
 
 yolo_spatial_det_nn = pipeline.createYoloSpatialDetectionNetwork()
-yolo_spatial_det_nn.setConfidenceThreshold(0.5)
+yolo_spatial_det_nn.setConfidenceThreshold(0.05)
 yolo_spatial_det_nn.setBlobPath(nnBlobPath)
 yolo_spatial_det_nn.setNumClasses(9)  # Adjust based on your model
 yolo_spatial_det_nn.setCoordinateSize(4)
@@ -29,7 +29,7 @@ yolo_spatial_det_nn.setAnchors(
     [10, 14, 23, 27, 37, 58, 81, 82, 135, 169, 344, 319])  # Adjust based on your model
 yolo_spatial_det_nn.setAnchorMasks(
     {"side26": [1, 2, 3], "side13": [3, 4, 5]})  # Adjust based on your model
-yolo_spatial_det_nn.setIouThreshold(0.5)
+yolo_spatial_det_nn.setIouThreshold(0.05)
 yolo_spatial_det_nn.setDepthLowerThreshold(100)
 yolo_spatial_det_nn.setDepthUpperThreshold(5000)
 
@@ -39,18 +39,22 @@ monoRight = pipeline.create(dai.node.MonoCamera)
 stereo = pipeline.create(dai.node.StereoDepth)
 
 xoutRgb = pipeline.create(dai.node.XLinkOut)
+
 xoutNN = pipeline.create(dai.node.XLinkOut)
 xoutDepth = pipeline.create(dai.node.XLinkOut)
 
 xoutRgb.setStreamName("rgb")
 xoutNN.setStreamName("detections")
 xoutDepth.setStreamName("depth")
+camRgb.video.link(xoutRgb.input)
 
 # Properties
 camRgb.setPreviewSize(640, 640)
 camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
 camRgb.setInterleaved(False)
-camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
+# camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
+camRgb.setIspScale(2, 3)
+camRgb.setPreviewKeepAspectRatio(False)
 
 monoLeft.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
 monoLeft.setCamera("left")
@@ -71,10 +75,10 @@ monoLeft.out.link(stereo.left)
 monoRight.out.link(stereo.right)
 
 camRgb.preview.link(yolo_spatial_det_nn.input)
-if syncNN:
-    yolo_spatial_det_nn.passthrough.link(xoutRgb.input)
-else:
-    camRgb.preview.link(xoutRgb.input)
+# if syncNN:
+#     yolo_spatial_det_nn.passthrough.link(xoutRgb.input)
+# else:
+#     camRgb.preview.link(xoutRgb.input)
 
 yolo_spatial_det_nn.out.link(xoutNN.input)
 
@@ -96,7 +100,7 @@ with dai.Device(pipeline) as device:
     color = (255, 255, 255)
 
     while True:
-        inPreview = previewQueue.get()
+
         inDet = detectionNNQueue.get()
         depth = depthQueue.get()
 
@@ -107,7 +111,7 @@ with dai.Device(pipeline) as device:
             counter = 0
             startTime = current_time
 
-        frame = inPreview.getCvFrame()
+        frame = previewQueue.get().getCvFrame()
 
         depthFrame = depth.getFrame()  # depthFrame values are in millimeters
 
