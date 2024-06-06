@@ -37,7 +37,7 @@ yolo_spatial_det_nn.setAnchorMasks(
     {"side26": [1, 2, 3], "side13": [3, 4, 5]})  # Adjust based on your model
 yolo_spatial_det_nn.setIouThreshold(0.05)
 yolo_spatial_det_nn.setDepthLowerThreshold(100)
-yolo_spatial_det_nn.setDepthUpperThreshold(5000)
+# yolo_spatial_det_nn.setDepthUpperThreshold(5000)
 
 
 monoLeft = pipeline.create(dai.node.MonoCamera)
