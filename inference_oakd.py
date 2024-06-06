@@ -12,7 +12,6 @@ nnBlobPath = "best_openvino_trees_2022.1_5shave.blob"
 labelMap = ['crate', 'junction box', 'module',
             'panel', 'person', 'pile', 'pipe', 'pipes', 'tube']
 
-syncNN = True
 
 # Create pipeline
 pipeline = dai.Pipeline()
@@ -75,10 +74,6 @@ monoLeft.out.link(stereo.left)
 monoRight.out.link(stereo.right)
 
 camRgb.preview.link(yolo_spatial_det_nn.input)
-# if syncNN:
-#     yolo_spatial_det_nn.passthrough.link(xoutRgb.input)
-# else:
-#     camRgb.preview.link(xoutRgb.input)
 
 yolo_spatial_det_nn.out.link(xoutNN.input)
 
